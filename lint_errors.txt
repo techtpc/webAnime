@@ -1,0 +1,42 @@
+
+/Users/rmg/The Pitch Creative/webAnime/prottube/src/app/artist/[slug]/page.tsx
+  32:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  33:54  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/rmg/The Pitch Creative/webAnime/prottube/src/app/category/[slug]/page.tsx
+  32:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  33:62  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/rmg/The Pitch Creative/webAnime/prottube/src/app/studio/[slug]/page.tsx
+  29:149  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:41   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/rmg/The Pitch Creative/webAnime/prottube/src/app/tag/[slug]/page.tsx
+  33:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  34:52  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/rmg/The Pitch Creative/webAnime/prottube/src/app/watch/[id]/page.tsx
+    2:38  warning  'Video' is defined but never used                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+    4:35  warning  'Play' is defined but never used                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+    4:41  warning  'Settings' is defined but never used                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   44:29  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   47:45  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   47:62  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   48:52  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   48:69  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   49:37  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   49:54  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  206:44  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  210:26  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/rmg/The Pitch Creative/webAnime/prottube/src/app/year/[slug]/page.tsx
+  39:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/rmg/The Pitch Creative/webAnime/prottube/src/app/year/page.tsx
+  16:47  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/rmg/The Pitch Creative/webAnime/prottube/src/components/VideoCard.tsx
+  13:9  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+✖ 23 problems (18 errors, 5 warnings)
+
