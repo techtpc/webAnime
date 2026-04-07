@@ -5,6 +5,39 @@ import { supabase } from "@/lib/supabase";
 import { ThumbsUp, Clock, Share2, Film, Calendar, Building2, User, Tag } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import Image from "next/image";
+
+interface Studio {
+  name: string;
+}
+
+interface Artist {
+  name: string;
+}
+
+interface Category {
+  name: string;
+  slug: string;
+}
+
+interface TagType {
+  name: string;
+}
+
+interface VideoData {
+  id: string;
+  title: string;
+  thumbnail_url: string;
+  duration_seconds: number;
+  views: number;
+  release_year: number;
+  created_at: string;
+  studios: Studio[];
+  video_artists: Array<{ artists: Artist }>;
+  video_categories: Array<{ categories: Category }>;
+  video_tags: Array<{ tags: TagType }>;
+  video_servers: VideoServer[];
+}
 
 export default async function WatchPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -35,21 +68,22 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
     return notFound();
   }
 
-  // --- LOGIKA MAPPING DATA YANG BERSIH (Tanpa casting asal-asalan) ---
-  const studioName = video.studios?.name || "Unknown Studio";
+ // --- LOGIKA MAPPING DATA YANG BERSIH ---
+  const videoData = video as VideoData;
+  const studioName = (videoData.studios && videoData.studios[0]?.name) || "Unknown Studio";
   
-  const castNames = video.video_artists
-    ?.map((va: any) => va.artists?.name)
+  // Ambil name langsung dari object, jangan dikasih .map() lagi!
+  const castNames = videoData.video_artists
+    ?.map((va) => va.artists?.name)
     .filter(Boolean).join(", ") || "Unknown Cast";
     
-  const categoryNames = video.video_categories
-    ?.map((vc: any) => vc.categories?.name)
+  const categoryNames = videoData.video_categories
+    ?.map((vc) => vc.categories?.name)
     .filter(Boolean).join(", ") || "No Category";
     
-  const tags = video.video_tags
-    ?.map((vt: any) => vt.tags?.name)
+  const tags = videoData.video_tags
+    ?.map((vt) => vt.tags?.name)
     .filter(Boolean) || [];
-
   return (
     <div className="min-h-screen bg-[#0f0f0f]">
       <Header />
@@ -60,12 +94,12 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
           <div className="flex-1 lg:w-[70%]">
             
             {/* INJEKSI DATA KE KOMPONEN PLAYER */}
-            <VideoPlayer servers={video.video_servers as VideoServer[]} />
+            <VideoPlayer servers={videoData.video_servers as VideoServer[]} />
 
             {/* Video Info */}
             <div className="mt-6 flex flex-col gap-4 border-b border-[#333333] pb-6">
               <h1 className="text-2xl font-bold tracking-tight text-white md:text-3xl">
-                {video.title}
+                {videoData.title}
               </h1>
               
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -76,7 +110,7 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
                   </div>
                   <div>
                     <h3 className="font-bold text-white text-base">{studioName}</h3>
-                    <p className="text-xs text-gray-400">{formatViews(video.views)} • {formatTimeAgo(video.created_at)}</p>
+                    <p className="text-xs text-gray-400">{formatViews(videoData.views)} • {formatTimeAgo(videoData.created_at)}</p>
                   </div>
                   <button className="ml-4 rounded-full bg-white px-5 py-2 text-sm font-bold text-black hover:bg-gray-200 transition">
                     Ikuti
@@ -88,7 +122,7 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
                   <div className="flex items-center rounded-full bg-[#222222] text-sm font-medium text-white">
                     <button className="flex items-center space-x-2 rounded-l-full px-4 py-2 hover:bg-[#2a2a2a] border-r border-[#333333] transition">
                       <ThumbsUp className="h-4 w-4" />
-                      <span>{formatViews(video.views / 2).replace(' views', '')}</span>
+                      <span>{formatViews(videoData.views / 2).replace(' views', '')}</span>
                     </button>
                     <button className="flex items-center px-4 py-2 rounded-r-full hover:bg-[#2a2a2a] transition">
                        <ThumbsUp className="h-4 w-4 rotate-180" />
@@ -124,7 +158,7 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
                     <Calendar className="w-4 h-4 text-blue-400" />
                     <div>
                          <p className="text-[10px] text-gray-500 uppercase tracking-wider">Tahun</p>
-                         <p className="text-sm font-medium text-gray-200">{video.release_year}</p>
+                         <p className="text-sm font-medium text-gray-200">{videoData.release_year}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -137,7 +171,7 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
                 </div>
                 
                 <p className="text-sm leading-relaxed text-gray-300 mb-6">
-                  Tonton seri terbaru dari {studioName}. Video ini menampilkan performa luar biasa dari {castNames} dalam genre {categoryNames} yang dirilis pada tahun {video.release_year}.
+                  Tonton seri terbaru dari {studioName}. Video ini menampilkan performa luar biasa dari {castNames} dalam genre {categoryNames} yang dirilis pada tahun {videoData.release_year}.
                 </p>
 
                 {/* Tags Section */}
@@ -167,18 +201,38 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
                </h3>
                
                <div className="flex flex-col gap-4">
-                 {relatedVideos?.map((vid: any) => (
+                 {relatedVideos?.map((vid) => (
                    <Link href={`/watch/${vid.id}`} key={vid.id}>
                      <div className="group flex gap-3 cursor-pointer items-start rounded-xl p-2 hover:bg-[#222222] transition-colors">
                        <div className="relative w-40 flex-shrink-0 aspect-video rounded-lg overflow-hidden bg-[#222222]">
-                         <img 
+                         <Image 
                            src={vid.thumbnail_url} 
                            alt={vid.title}
-                           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                           fill
+                           className="object-cover transition-transform duration-300 group-hover:scale-105"
                          />
                          <div className="absolute bottom-1 right-1 rounded bg-black/80 px-1 py-0.5 text-[10px] font-bold text-white">
                            {formatDuration(vid.duration_seconds)}
                          </div>
                        </div>
                        
-                       <div className="flex flex-col flex-1 overflow-hidden
+                       <div className="flex flex-col flex-1 overflow-hidden">
+                         <h4 className="text-sm font-medium text-white line-clamp-2 group-hover:text-orange-400 transition">
+                           {vid.title}
+                         </h4>
+                         <div className="mt-auto">
+                           <p className="text-xs text-gray-400">{formatViews(vid.views)}</p>
+                           <p className="text-xs text-gray-500">{formatTimeAgo(vid.created_at)}</p>
+                         </div>
+                       </div>
+                     </div>
+                   </Link>
+                 ))}
+               </div>
+             </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}
