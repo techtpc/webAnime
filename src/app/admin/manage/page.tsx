@@ -24,6 +24,7 @@ export default function AdminManagePage() {
 
   const initialForm = {
     title: "",
+    thumbnail_url: "",
     duration_seconds: "",
     release_year: currentYear.toString(),
     studio_id: "",
@@ -54,11 +55,11 @@ export default function AdminManagePage() {
     setFetchLoading(true);
     
     const [vRes, sRes, aRes, cRes, tRes] = await Promise.all([
-      supabase.from("videos").select(`*, studios(id, name), video_servers(*), video_artists(artists(name)), video_categories(categories(name)), video_tags(tags(name))`).order("created_at", { ascending: false }),
+      supabase.from("videos").select(`*, studios(id, name), video_servers(*), video_artists(artists(id, name)), video_categories(categories(id, name)), video_tags(tags(id, name))`).order("created_at", { ascending: false }),
       supabase.from("studios").select("id, name").order("name"),
-      supabase.from("artists").select("name").order("name"),
-      supabase.from("categories").select("name").order("name"),
-      supabase.from("tags").select("name").order("name"),
+      supabase.from("artists").select("id, name").order("name"),
+      supabase.from("categories").select("id, name").order("name"),
+      supabase.from("tags").select("id, name").order("name"),
     ]);
 
     if (vRes.data) setVideos(vRes.data);
@@ -106,13 +107,13 @@ export default function AdminManagePage() {
 
     try {
       let currentId = editingId;
-      // Generate thumbnail otomatis dari embed URL
+      // Gunakan thumbnail dari form, atau generate otomatis jika kosong
       const primaryEmbedUrl = formData.filedon_url || formData.turbovip_url;
-      const generatedThumbnail = generateThumbnail(formData.title, primaryEmbedUrl);
+      const thumbnailUrl = formData.thumbnail_url || generateThumbnail(formData.title, primaryEmbedUrl);
       
       const videoPayload = {
         title: formData.title,
-        thumbnail_url: generatedThumbnail,
+        thumbnail_url: thumbnailUrl,
         duration_seconds: parseInt(formData.duration_seconds),
         release_year: parseInt(formData.release_year),
         studio_id: formData.studio_id || null,
@@ -165,6 +166,7 @@ export default function AdminManagePage() {
     setEditingId(v.id);
     setFormData({
       title: v.title,
+      thumbnail_url: v.thumbnail_url,
       duration_seconds: v.duration_seconds.toString(),
       release_year: v.release_year.toString(),
       studio_id: v.studio_id || "",
@@ -223,6 +225,10 @@ export default function AdminManagePage() {
               <div>
                 <label className="text-xs md:text-xs text-gray-500 font-bold">JUDUL FILM</label>
                 <input className="w-full bg-[#222] border border-[#333] p-2 md:p-3 rounded-lg mt-1 text-sm outline-none focus:border-orange-500" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} required />
+              </div>
+              <div>
+                <label className="text-xs md:text-xs text-gray-500 font-bold">URL THUMBNAIL</label>
+                <input className="w-full bg-[#222] border border-[#333] p-2 md:p-3 rounded-lg mt-1 text-sm outline-none focus:border-orange-500" placeholder="Kosongkan untuk auto-generate dari video" value={formData.thumbnail_url} onChange={e => setFormData({...formData, thumbnail_url: e.target.value})} />
               </div>
               <div className="grid grid-cols-2 gap-2 md:gap-4">
                 <div>
