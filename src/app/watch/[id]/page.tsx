@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabase";
 import { ThumbsUp, Clock, Share2, Film, Calendar, Building2, User, Tag } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Image from "next/image";
 
 interface Studio {
   name: string;
@@ -69,7 +68,7 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
   }
 
  // --- LOGIKA MAPPING DATA YANG BERSIH ---
-  const videoData = video as VideoData;
+  const videoData = video as unknown as VideoData;
   const studioName = (videoData.studios && videoData.studios[0]?.name) || "Unknown Studio";
   
   // Ambil name langsung dari object, jangan dikasih .map() lagi!
@@ -205,11 +204,11 @@ export default async function WatchPage({ params }: { params: Promise<{ id: stri
                    <Link href={`/watch/${vid.id}`} key={vid.id}>
                      <div className="group flex gap-3 cursor-pointer items-start rounded-xl p-2 hover:bg-[#222222] transition-colors">
                        <div className="relative w-40 flex-shrink-0 aspect-video rounded-lg overflow-hidden bg-[#222222]">
-                         <Image 
+                         <img 
                            src={vid.thumbnail_url} 
                            alt={vid.title}
-                           fill
-                           className="object-cover transition-transform duration-300 group-hover:scale-105"
+                           loading="lazy"
+                           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                          />
                          <div className="absolute bottom-1 right-1 rounded bg-black/80 px-1 py-0.5 text-[10px] font-bold text-white">
                            {formatDuration(vid.duration_seconds)}

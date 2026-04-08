@@ -53,19 +53,59 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed left-0 top-0 z-20 flex h-screen w-64 flex-col justify-between bg-[#1a1a1a] p-6 border-r border-[#333333]">
-      <div>
-        {/* Logo */}
-        <Link href="/" className="mb-2 block">
-          <h1 className="text-2xl font-black italic tracking-tight">
-            <span className="text-orange-500">Prot</span>
-            <span className="text-white">Tube</span>
-          </h1>
-          <p className="text-xs text-gray-400 mt-1">Premium Theater</p>
-        </Link>
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden lg:flex fixed left-0 top-0 z-40 h-screen w-64 flex-col justify-between bg-[#1a1a1a] p-6 border-r border-[#333333] pt-20">
+        <div>
+          {/* Logo */}
+          <Link href="/" className="mb-2 block">
+            <h1 className="text-2xl font-black italic tracking-tight">
+              <span className="text-orange-500">Prot</span>
+              <span className="text-white">Tube</span>
+            </h1>
+            <p className="text-xs text-gray-400 mt-1">Premium Theater</p>
+          </Link>
 
-        {/* Navigation */}
-        <nav className="mt-8 space-y-2">
+          {/* Navigation */}
+          <nav className="mt-8 space-y-2">
+            {navItems.map((item, idx) => {
+              const isActive = pathname === item.href;
+              const Icon = Icons[item.icon as keyof typeof Icons];
+              
+              return (
+                <Link
+                  key={idx}
+                  href={item.href || "#"}
+                  className={`flex items-center space-x-4 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-[#2a2a2a] text-orange-500 rounded-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]"
+                      : "text-gray-400 hover:bg-[#2a2a2a] hover:text-white"
+                  }`}
+                >
+                  {Icon}
+                  <span>{item.label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Promo Card */}
+        <div className="mt-auto rounded-xl border border-orange-500/50 bg-[#222222] p-5 shadow-lg relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500/10 rounded-bl-full"></div>
+          <h3 className="mb-2 text-sm font-bold text-orange-400">Limited Offer</h3>
+          <p className="mb-4 text-xs text-gray-300">Experience 4K HDR without limits.</p>
+          <button className="w-full rounded-lg bg-orange-500 py-2.5 text-sm font-bold text-black hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20">
+            Go Pro
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile Sidebar - Overlay Style */}
+      <div className="lg:hidden fixed inset-0 z-30 hidden bg-black/50 md:hidden" id="mobile-nav-overlay"></div>
+      <aside className="lg:hidden fixed left-0 top-16 z-30 hidden w-64 max-h-[calc(100vh-64px)] flex-col overflow-y-auto bg-[#1a1a1a] p-4 border-r border-[#333333] md:hidden" id="mobile-nav">
+        {/* Navigation for Mobile */}
+        <nav className="space-y-2">
           {navItems.map((item, idx) => {
             const isActive = pathname === item.href;
             const Icon = Icons[item.icon as keyof typeof Icons];
@@ -74,9 +114,9 @@ export default function Sidebar() {
               <Link
                 key={idx}
                 href={item.href || "#"}
-                className={`flex items-center space-x-4 rounded-xl px-4 py-3 text-sm font-medium transition-colors ${
+                className={`flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-[#2a2a2a] text-orange-500 rounded-lg shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]"
+                    ? "bg-[#2a2a2a] text-orange-500"
                     : "text-gray-400 hover:bg-[#2a2a2a] hover:text-white"
                 }`}
               >
@@ -86,17 +126,7 @@ export default function Sidebar() {
             );
           })}
         </nav>
-      </div>
-
-      {/* Promo Card */}
-      <div className="mt-auto rounded-xl border border-orange-500/50 bg-[#222222] p-5 shadow-lg relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500/10 rounded-bl-full"></div>
-        <h3 className="mb-2 text-sm font-bold text-orange-400">Limited Offer</h3>
-        <p className="mb-4 text-xs text-gray-300">Experience 4K HDR without limits.</p>
-        <button className="w-full rounded-lg bg-orange-500 py-2.5 text-sm font-bold text-black hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20">
-          Go Pro
-        </button>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 }

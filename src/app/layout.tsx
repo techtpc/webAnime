@@ -17,10 +17,15 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta httpEquiv="x-ua-compatible" content="ie=edge" />
+      </head>
       <body className={`${inter.className} bg-[#0f0f0f] text-white antialiased`}>
         <div className="flex min-h-screen">
           <Sidebar />
-          <main className="ml-64 flex flex-1 flex-col pb-10">
+          <main className="lg:ml-64 flex-1 flex flex-col pb-10 pt-16 md:pt-0">
             {children}
           </main>
         </div>
