@@ -55,10 +55,10 @@ export default function AdminManagePage() {
     setFetchLoading(true);
     
     const [vRes, sRes, aRes, cRes, tRes] = await Promise.all([
-      supabase.from("videos").select(`*, studios(id, name), video_servers(*), video_artists(artists(id, name)), video_categories(categories(id, name)), video_tags(tags(id, name))`).order("created_at", { ascending: false }),
+      supabase.from("videos").select(`id, title, thumbnail_url, duration_seconds, views, release_year, created_at, studio_id, studios(id, name), video_servers(*), video_artists(*, artists(id, name)), video_categories(*, categories(id, name)), video_tags(*, tags(id, name))`).order("created_at", { ascending: false }),
       supabase.from("studios").select("id, name").order("name"),
       supabase.from("artists").select("id, name").order("name"),
-      supabase.from("categories").select("id, name").order("name"),
+      supabase.from("categories").select("id, name, slug").order("name"),
       supabase.from("tags").select("id, name").order("name"),
     ]);
 
@@ -91,10 +91,36 @@ export default function AdminManagePage() {
   const handleManyToMany = async (videoId: string, rawData: string, tableName: string, junctionTable: string, columnId: string) => {
     if (!rawData) return;
     const items = rawData.split(",").map(i => i.trim()).filter(Boolean);
+    
     for (const item of items) {
-      const { data: masterItem, error: mError } = await supabase.from(tableName).upsert({ name: item }, { onConflict: 'name' }).select().single();
-      if (!mError && masterItem) {
-        await supabase.from(junctionTable).insert([{ video_id: videoId, [columnId]: masterItem.id }]);
+      // Bikin slug otomatis (contoh: "Sci-Fi & Action" -> "sci-fi-action")
+      const itemSlug = item.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+
+      // Kalau tabelnya categories, suntik slug-nya. Kalau bukan, nama doang.
+      const payload = tableName === 'categories' 
+        ? { name: item, slug: itemSlug } 
+        : { name: item };
+
+      // Upsert ke tabel master
+      const { data: masterItem, error: mError } = await supabase
+        .from(tableName)
+        .upsert(payload, { onConflict: 'name' })
+        .select()
+        .single();
+
+      // INI PENTING: Biar lu tau kalau ada error, gak diem-diem bae!
+      if (mError) {
+        console.error(`[GAGAL SUNTIK ${tableName}]:`, mError.message);
+        continue; // Lewatin item ini, lanjut ke yang berikutnya
+      }
+
+      // Link ke tabel jembatan (Junction Table)
+      if (masterItem) {
+        const { error: jError } = await supabase
+          .from(junctionTable)
+          .insert([{ video_id: videoId, [columnId]: masterItem.id }]);
+          
+        if (jError) console.error(`[GAGAL LINK ${junctionTable}]:`, jError.message);
       }
     }
   };
@@ -111,12 +137,15 @@ export default function AdminManagePage() {
       const primaryEmbedUrl = formData.filedon_url || formData.turbovip_url;
       const thumbnailUrl = formData.thumbnail_url || generateThumbnail(formData.title, primaryEmbedUrl);
       
+      // Pastikan studio_id adalah string (untuk dropdown) atau null
+      const studioIdValue = formData.studio_id ? formData.studio_id.toString() : null;
+      
       const videoPayload = {
         title: formData.title,
         thumbnail_url: thumbnailUrl,
         duration_seconds: parseInt(formData.duration_seconds),
         release_year: parseInt(formData.release_year),
-        studio_id: formData.studio_id || null,
+        studio_id: studioIdValue,
         video_url: primaryEmbedUrl || "",
       };
 
@@ -169,10 +198,10 @@ export default function AdminManagePage() {
       thumbnail_url: v.thumbnail_url,
       duration_seconds: v.duration_seconds.toString(),
       release_year: v.release_year.toString(),
-      studio_id: v.studio_id || "",
-      artists_raw: v.video_artists?.map((a: any) => a.artists.name).join(", ") || "",
-      categories_raw: v.video_categories?.map((c: any) => c.categories.name).join(", ") || "",
-      tags_raw: v.video_tags?.map((t: any) => t.tags.name).join(", ") || "",
+      studio_id: v.studio_id?.toString() || "",
+      artists_raw: v.video_artists?.map((a: any) => a.artists?.name).filter(Boolean).join(", ") || "",
+      categories_raw: v.video_categories?.map((c: any) => c.categories?.name).filter(Boolean).join(", ") || "",
+      tags_raw: v.video_tags?.map((t: any) => t.tags?.name).filter(Boolean).join(", ") || "",
       filedon_url: v.video_servers?.find((s: any) => s.server_name === "Filedon")?.embed_url || "",
       turbovip_url: v.video_servers?.find((s: any) => s.server_name === "Turbovip")?.embed_url || "",
     });
