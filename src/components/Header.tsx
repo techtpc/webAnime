@@ -52,6 +52,7 @@ export default function Header() {
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
+  // FUNGSI CEK LAYAR & LOGIN
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
@@ -84,7 +85,6 @@ export default function Header() {
     toast.success("Lu berhasil logout!", { id: toastId });
     router.refresh();
   };
-
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || "User";
   const userInitial = userName.charAt(0).toUpperCase();
 
