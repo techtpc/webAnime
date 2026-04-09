@@ -1,29 +1,63 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { filterTabs } from "@/lib/data";
 import { Menu, LogOut, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation"; // Ditambah useSearchParams
 import toast from "react-hot-toast";
+
+// --- KOMPONEN SEARCH BAR (LOGIKA ANDA) ---
+function SearchInput({ placeholder }: { placeholder: string }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("q") || "");
+
+  // Sinkronisasi input jika URL berubah
+  useEffect(() => {
+    setQuery(searchParams.get("q") || "");
+  }, [searchParams]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (query.trim()) {
+      router.push(`/?q=${encodeURIComponent(query)}`);
+    } else {
+      router.push("/");
+    }
+  };
+
+  return (
+    <form onSubmit={handleSearch} className="flex w-full items-center gap-2">
+      <input 
+        type="text" 
+        placeholder={placeholder} 
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 outline-none min-w-0" 
+      />
+      <button type="submit" className="text-gray-500 hover:text-white flex-shrink-0 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 md:w-5 md:h-5">
+          <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        </svg>
+      </button>
+    </form>
+  );
+}
 
 export default function Header() {
   const [isMobile, setIsMobile] = useState(false);
-  
-  // STATE OTENTIKASI
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
   // FUNGSI CEK LAYAR & LOGIN
   useEffect(() => {
-    // Cek ukuran layar
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
     window.addEventListener("resize", handleResize);
 
-    // Cek sesi login
     const getUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user || null);
@@ -34,7 +68,6 @@ export default function Header() {
     };
     getUser();
 
-    // Dengerin perubahan status login real-time
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user || null);
       if (!session) setIsAdmin(false);
@@ -46,8 +79,7 @@ export default function Header() {
     };
   }, []);
 
- 
-const handleLogout = async () => {
+  const handleLogout = async () => {
     const toastId = toast.loading("Sedang keluar dari sistem...");
     await supabase.auth.signOut();
     toast.success("Lu berhasil logout!", { id: toastId });
@@ -66,13 +98,10 @@ const handleLogout = async () => {
         </button>
         
         <div className="flex-1 min-w-0">
-          <div className="flex rounded-full bg-[#222222] px-3 py-2 border border-[#333333] focus-within:border-[#555555] gap-2">
-            <input type="text" placeholder="Search..." className="flex-1 bg-transparent text-sm text-white placeholder-gray-500 outline-none min-w-0" />
-            <button className="text-gray-500 hover:text-white flex-shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-              </svg>
-            </button>
+          <div className="flex rounded-full bg-[#222222] px-3 py-2 border border-[#333333] focus-within:border-[#555555]">
+            <Suspense fallback={<div className="h-5 w-full animate-pulse bg-transparent" />}>
+              <SearchInput placeholder="Search..." />
+            </Suspense>
           </div>
         </div>
 
@@ -98,19 +127,16 @@ const handleLogout = async () => {
           ))}
         </div>
         
-        {/* Search Bar */}
+        {/* Search Bar Desktop (LOGIKA ANDA) */}
         <div className="flex-1 max-w-xl">
           <div className="flex w-full items-center rounded-full bg-[#222222] px-4 py-2 border border-[#333333] focus-within:border-[#555555]">
-            <input type="text" placeholder="Search cinematic experiences..." className="w-full bg-transparent text-sm text-white placeholder-gray-500 outline-none" />
-            <button className="ml-2 text-gray-500 hover:text-white transition">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-              </svg>
-            </button>
+            <Suspense fallback={<div className="h-5 w-full animate-pulse bg-transparent" />}>
+              <SearchInput placeholder="Search cinematic experiences..." />
+            </Suspense>
           </div>
         </div>
 
-        {/* Right Actions */}
+        {/* Right Actions (LOGIKA REKAN TIM) */}
         <div className="flex items-center space-x-4 flex-shrink-0">
           <button className="text-gray-400 hover:text-white relative transition mr-2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">

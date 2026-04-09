@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
-// 1. IMPORT TOASTER DARI LIBRARY
 import { Toaster } from "react-hot-toast";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -25,24 +24,14 @@ export default function RootLayout({
         <meta httpEquiv="x-ua-compatible" content="ie=edge" />
       </head>
       <body className={`${inter.className} bg-[#0f0f0f] text-white antialiased`}>
-        
-        {/* 2. INJEKSI MESIN TOAST GLOBAL DI SINI */}
-        <Toaster 
-          position="top-center" 
+        {/* 1. Tambahkan Toaster di sini */}
+        <Toaster
+          position="bottom-right"
           toastOptions={{
             style: {
               background: '#222',
               color: '#fff',
               border: '1px solid #333',
-              borderRadius: '12px',
-              fontWeight: 'bold',
-              fontSize: '14px',
-            },
-            success: {
-              iconTheme: { primary: '#f97316', secondary: '#000' }, // Warna Oranye ProtTube lu
-            },
-            error: {
-              iconTheme: { primary: '#ef4444', secondary: '#fff' }, // Merah buat error
             },
           }}
         />
