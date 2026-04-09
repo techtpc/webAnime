@@ -31,7 +31,7 @@ interface VideoData {
   views: number;
   release_year: number;
   created_at: string;
-  studios: Studio[];
+  studios: Studio[] | Studio;
   video_artists: Array<{ artists: Artist }>;
   video_categories: Array<{ categories: Category }>;
   video_tags: Array<{ tags: TagType }>;
