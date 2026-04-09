@@ -48,7 +48,7 @@ export function formatDuration(seconds: number): string {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   const s = Math.floor(seconds % 60);
-  
+
   if (h > 0) {
     return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   }
@@ -62,8 +62,6 @@ export const navItems = [
   { label: "Tags", href: "/tag", icon: "tag" },
   { label: "Studio", href: "/studio", icon: "studio" },
   { label: "Year", href: "/year", icon: "year" },
-  { label: "Library", href: "/library", icon: "library" },
-  { label: "History", href: "/history", icon: "history" },
 ];
 
 export const filterTabs = ["Terbaru", "minggu ini", "bulan ini", "tahun ini"];
