@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { filterTabs } from "@/lib/data";
 import { Menu } from "lucide-react";
+import Link from "next/link";
 
 export default function Header() {
   const [isMobile, setIsMobile] = useState(false);
@@ -90,14 +91,16 @@ export default function Header() {
             </svg>
             <span className="absolute top-0 right-1 w-2 h-2 rounded-full bg-orange-500 border border-[#0f0f0f]"></span>
           </button>
-          <button className="flex items-center space-x-2 rounded-full border border-[#333333] bg-[#222222] px-3 py-1.5 hover:bg-[#2a2a2a] transition">
-            <span className="text-sm font-medium text-gray-300">GUEST</span>
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-xs font-bold text-white">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-black">
-                <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
-              </svg>
-            </div>
-          </button>
+          <Link href="/login">
+            <button className="flex items-center space-x-2 rounded-full border border-[#333333] bg-[#222222] px-3 py-1.5 hover:bg-[#2a2a2a] transition">
+              <span className="text-sm font-medium text-gray-300">GUEST</span>
+              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-orange-500 text-xs font-bold text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4 text-black">
+                  <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd" />
+                </svg>
+              </div>
+            </button>
+          </Link>
         </div>
       </div>
     </header>

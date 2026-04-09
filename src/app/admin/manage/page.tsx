@@ -22,6 +22,52 @@ export default function AdminManagePage() {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
+  const router = import("next/navigation").then(mod => mod.useRouter); // Dynamic import workaround buat client component
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [authChecking, setAuthChecking] = useState(true);
+
+  // FUNGSI CEK OTENTIKASI & ROLE
+  useEffect(() => {
+    const checkAuth = async () => {
+      // 1. Cek sesi login
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        // Gak login? Tendang ke halaman login
+        window.location.href = "/login";
+        return;
+      }
+
+      // 2. Cek Role di tabel profiles
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+
+      if (profile?.role !== "admin") {
+        // Login tapi bukan admin? Tendang ke Homepage
+        alert("Lu bukan admin, homie. Balik sana.");
+        window.location.href = "/";
+        return;
+      }
+
+      // Kalau lolos semua ujian, izinin masuk
+      setIsAdmin(true);
+      setAuthChecking(false);
+      fetchAllData(); // Pindahin pemanggilan fetchAllData ke sini
+    };
+
+    checkAuth();
+  }, []);
+
+  // Kalau lagi ngecek auth, kasih layar loading (biar formnya gak nongol duluan)
+  if (authChecking) {
+    return <div className="min-h-screen bg-[#0f0f0f] text-orange-500 flex justify-center items-center font-bold text-2xl">Ngecek Kredensial...</div>;
+  }
+
+  // Kalau bukan admin, render kosong (biar aman sebelum redirect jalan)
+  if (!isAdmin) return null;
   const initialForm = {
     title: "",
     thumbnail_url: "",
@@ -71,7 +117,6 @@ export default function AdminManagePage() {
     setFetchLoading(false);
   };
 
-  useEffect(() => { fetchAllData(); }, []);
 
   // 2. FUNGSI SUGGESTION PILLS
   const appendToInput = (field: 'artists_raw' | 'categories_raw' | 'tags_raw', value: string) => {
