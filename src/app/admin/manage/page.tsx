@@ -6,68 +6,26 @@ import Header from "@/components/Header";
 import { Pencil, Trash2, X, Database, PlusCircle, RefreshCw } from "lucide-react";
 
 export default function AdminManagePage() {
-  // Data Master
+  // =========================================================================
+  // 1. ZONA HOOKS: SEMUA USE-STATE WAJIB DI SINI
+  // =========================================================================
   const [videos, setVideos] = useState<any[]>([]);
   const [studios, setStudios] = useState<any[]>([]);
   const [allArtists, setAllArtists] = useState<any[]>([]);
   const [allCategories, setAllCategories] = useState<any[]>([]);
   const [allTags, setAllTags] = useState<any[]>([]);
   
-  // UI States
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [status, setStatus] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
-
-  const router = import("next/navigation").then(mod => mod.useRouter); // Dynamic import workaround buat client component
   const [isAdmin, setIsAdmin] = useState(false);
   const [authChecking, setAuthChecking] = useState(true);
 
-  // FUNGSI CEK OTENTIKASI & ROLE
-  useEffect(() => {
-    const checkAuth = async () => {
-      // 1. Cek sesi login
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        // Gak login? Tendang ke halaman login
-        window.location.href = "/login";
-        return;
-      }
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
-      // 2. Cek Role di tabel profiles
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", session.user.id)
-        .single();
-
-      if (profile?.role !== "admin") {
-        // Login tapi bukan admin? Tendang ke Homepage
-        alert("Lu bukan admin, homie. Balik sana.");
-        window.location.href = "/";
-        return;
-      }
-
-      // Kalau lolos semua ujian, izinin masuk
-      setIsAdmin(true);
-      setAuthChecking(false);
-      fetchAllData(); // Pindahin pemanggilan fetchAllData ke sini
-    };
-
-    checkAuth();
-  }, []);
-
-  // Kalau lagi ngecek auth, kasih layar loading (biar formnya gak nongol duluan)
-  if (authChecking) {
-    return <div className="min-h-screen bg-[#0f0f0f] text-orange-500 flex justify-center items-center font-bold text-2xl">Ngecek Kredensial...</div>;
-  }
-
-  // Kalau bukan admin, render kosong (biar aman sebelum redirect jalan)
-  if (!isAdmin) return null;
   const initialForm = {
     title: "",
     thumbnail_url: "",
@@ -80,23 +38,11 @@ export default function AdminManagePage() {
     filedon_url: "",
     turbovip_url: "",
   };
-
-  // Function untuk generate thumbnail otomatis dari video URL atau embed
-  const generateThumbnail = (title: string, embedUrl: string = ""): string => {
-    if (!title && !embedUrl) return `https://picsum.photos/seed/default/400/225`;
-    
-    // Jika ada embedUrl, gunakan sebagai seed
-    const seed = embedUrl || title;
-    const hashCode = seed.split('').reduce((hash, char) => {
-      const char_code = char.charCodeAt(0);
-      return ((hash << 5) - hash) + char_code;
-    }, 0);
-    
-    return `https://picsum.photos/seed/${Math.abs(hashCode)}/400/225`;
-  };
   const [formData, setFormData] = useState(initialForm);
 
-  // 1. FETCH SEMUA DATA (Paralel)
+  // =========================================================================
+  // 2. ZONA DEKLARASI FUNGSI (Biar gak error "Cannot access before init")
+  // =========================================================================
   const fetchAllData = async () => {
     setFetchLoading(true);
     
@@ -117,49 +63,83 @@ export default function AdminManagePage() {
     setFetchLoading(false);
   };
 
+  const generateThumbnail = (title: string, embedUrl: string = ""): string => {
+    if (!title && !embedUrl) return `https://picsum.photos/seed/default/400/225`;
+    const seed = embedUrl || title;
+    const hashCode = seed.split('').reduce((hash, char) => {
+      const char_code = char.charCodeAt(0);
+      return ((hash << 5) - hash) + char_code;
+    }, 0);
+    return `https://picsum.photos/seed/${Math.abs(hashCode)}/400/225`;
+  };
 
-  // 2. FUNGSI SUGGESTION PILLS
+  // =========================================================================
+  // 3. ZONA USE-EFFECT
+  // =========================================================================
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        window.location.href = "/login";
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", session.user.id)
+        .single();
+
+      if (profile?.role !== "admin") {
+        alert("Lu bukan admin, homie. Balik sana.");
+        window.location.href = "/";
+        return;
+      }
+
+      setIsAdmin(true);
+      setAuthChecking(false);
+      fetchAllData(); 
+    };
+
+    checkAuth();
+  }, []);
+
+  // =========================================================================
+  // 4. ZONA LOGIKA FORM & BUTTON
+  // =========================================================================
   const appendToInput = (field: 'artists_raw' | 'categories_raw' | 'tags_raw', value: string) => {
     setFormData(prev => {
       const current = prev[field].trim();
       if (current.length === 0) return { ...prev, [field]: value };
-      
       const items = current.split(',').map(i => i.trim());
       if (items.includes(value)) return prev; 
-      
       const cleanedCurrent = current.endsWith(',') ? current.slice(0, -1) : current;
       return { ...prev, [field]: `${cleanedCurrent}, ${value}` };
     });
   };
 
-  // 3. FUNGSI RELASI MANY-TO-MANY
   const handleManyToMany = async (videoId: string, rawData: string, tableName: string, junctionTable: string, columnId: string) => {
     if (!rawData) return;
     const items = rawData.split(",").map(i => i.trim()).filter(Boolean);
     
     for (const item of items) {
-      // Bikin slug otomatis (contoh: "Sci-Fi & Action" -> "sci-fi-action")
       const itemSlug = item.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-
-      // Kalau tabelnya categories, suntik slug-nya. Kalau bukan, nama doang.
       const payload = tableName === 'categories' 
         ? { name: item, slug: itemSlug } 
         : { name: item };
 
-      // Upsert ke tabel master
       const { data: masterItem, error: mError } = await supabase
         .from(tableName)
         .upsert(payload, { onConflict: 'name' })
         .select()
         .single();
 
-      // INI PENTING: Biar lu tau kalau ada error, gak diem-diem bae!
       if (mError) {
         console.error(`[GAGAL SUNTIK ${tableName}]:`, mError.message);
-        continue; // Lewatin item ini, lanjut ke yang berikutnya
+        continue; 
       }
 
-      // Link ke tabel jembatan (Junction Table)
       if (masterItem) {
         const { error: jError } = await supabase
           .from(junctionTable)
@@ -170,7 +150,6 @@ export default function AdminManagePage() {
     }
   };
 
-  // 4. SUBMIT FORM (CREATE / UPDATE)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -178,11 +157,8 @@ export default function AdminManagePage() {
 
     try {
       let currentId = editingId;
-      // Gunakan thumbnail dari form, atau generate otomatis jika kosong
       const primaryEmbedUrl = formData.filedon_url || formData.turbovip_url;
       const thumbnailUrl = formData.thumbnail_url || generateThumbnail(formData.title, primaryEmbedUrl);
-      
-      // Pastikan studio_id adalah string (untuk dropdown) atau null
       const studioIdValue = formData.studio_id ? formData.studio_id.toString() : null;
       
       const videoPayload = {
@@ -195,7 +171,6 @@ export default function AdminManagePage() {
       };
 
       if (editingId) {
-        // UPDATE
         await supabase.from("videos").update(videoPayload).eq("id", editingId);
         await Promise.all([
           supabase.from("video_servers").delete().eq("video_id", editingId),
@@ -204,7 +179,6 @@ export default function AdminManagePage() {
           supabase.from("video_tags").delete().eq("video_id", editingId),
         ]);
       } else {
-        // CREATE
         const { data: v, error } = await supabase.from("videos").insert([videoPayload]).select().single();
         if (error) throw error;
         currentId = v.id;
@@ -231,11 +205,10 @@ export default function AdminManagePage() {
       setStatus(`Error: ${err.message}`);
     } finally {
       setLoading(false);
-      setTimeout(() => setStatus(""), 5000); // Hilangin pesan setelah 5 detik
+      setTimeout(() => setStatus(""), 5000); 
     }
   };
 
-  // 5. EDIT & DELETE BUTTON HANDLERS
   const handleEdit = (v: any) => {
     setEditingId(v.id);
     setFormData({
@@ -270,6 +243,18 @@ export default function AdminManagePage() {
     setStatus("");
   };
 
+  // =========================================================================
+  // 5. ZONA SATPAM (EARLY RETURN) - GAK BOLEH ADA HOOKS DI BAWAH INI
+  // =========================================================================
+  if (authChecking) {
+    return <div className="min-h-screen bg-[#0f0f0f] text-orange-500 flex justify-center items-center font-bold text-2xl">Ngecek Kredensial...</div>;
+  }
+
+  if (!isAdmin) return null;
+
+  // =========================================================================
+  // 6. ZONA RENDER UI
+  // =========================================================================
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-white pb-20">
       <Header />
