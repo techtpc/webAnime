@@ -5,16 +5,15 @@ import { filterTabs } from "@/lib/data";
 import { Menu, LogOut, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { useRouter, useSearchParams } from "next/navigation"; // Ditambah useSearchParams
+import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
-// --- KOMPONEN SEARCH BAR (LOGIKA ANDA) ---
+// --- KOMPONEN SEARCH BAR ---
 function SearchInput({ placeholder }: { placeholder: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") || "");
 
-  // Sinkronisasi input jika URL berubah
   useEffect(() => {
     setQuery(searchParams.get("q") || "");
   }, [searchParams]);
@@ -52,7 +51,6 @@ export default function Header() {
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
-  // FUNGSI CEK LAYAR & LOGIN
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
@@ -83,8 +81,11 @@ export default function Header() {
     const toastId = toast.loading("Sedang keluar dari sistem...");
     await supabase.auth.signOut();
     toast.success("Lu berhasil logout!", { id: toastId });
+    // TENDANG KE HOMEPAGE YANG LU LUPA KEMAREN
+    router.push("/");
     router.refresh();
   };
+
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || "User";
   const userInitial = userName.charAt(0).toUpperCase();
 
@@ -93,7 +94,11 @@ export default function Header() {
       
       {/* ================= MOBILE HEADER ================= */}
       <div className="md:hidden flex h-16 items-center justify-between px-4 gap-3">
-        <button className="text-gray-400 hover:text-white transition flex-shrink-0">
+        {/* INI DIA MANTRA TELEPATINYA */}
+        <button 
+          onClick={() => window.dispatchEvent(new Event('toggleSidebar'))}
+          className="text-gray-400 hover:text-white transition flex-shrink-0"
+        >
           <Menu className="w-6 h-6" />
         </button>
         
@@ -127,7 +132,7 @@ export default function Header() {
           ))}
         </div>
         
-        {/* Search Bar Desktop (LOGIKA ANDA) */}
+        {/* Search Bar Desktop */}
         <div className="flex-1 max-w-xl">
           <div className="flex w-full items-center rounded-full bg-[#222222] px-4 py-2 border border-[#333333] focus-within:border-[#555555]">
             <Suspense fallback={<div className="h-5 w-full animate-pulse bg-transparent" />}>
@@ -136,7 +141,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Right Actions (LOGIKA REKAN TIM) */}
+        {/* Right Actions */}
         <div className="flex items-center space-x-4 flex-shrink-0">
           <button className="text-gray-400 hover:text-white relative transition mr-2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
