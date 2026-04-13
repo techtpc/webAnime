@@ -37,6 +37,7 @@ export default function AdminManagePage() {
     tags_raw: "", 
     filedon_url: "",
     turbovip_url: "",
+    download_url: "",
   };
   const [formData, setFormData] = useState(initialForm);
 
@@ -47,7 +48,7 @@ export default function AdminManagePage() {
     setFetchLoading(true);
     
     const [vRes, sRes, aRes, cRes, tRes] = await Promise.all([
-      supabase.from("videos").select(`id, title, thumbnail_url, duration_seconds, views, release_year, created_at, studio_id, studios(id, name), video_servers(*), video_artists(*, artists(id, name)), video_categories(*, categories(id, name)), video_tags(*, tags(id, name))`).order("created_at", { ascending: false }),
+      supabase.from("videos").select(`id, title, thumbnail_url, duration_seconds, views, release_year, created_at, studio_id,download_url, studios(id, name), video_servers(*), video_artists(*, artists(id, name)), video_categories(*, categories(id, name)), video_tags(*, tags(id, name))`).order("created_at", { ascending: false }),
       supabase.from("studios").select("id, name").order("name"),
       supabase.from("artists").select("id, name").order("name"),
       supabase.from("categories").select("id, name, slug").order("name"),
@@ -168,6 +169,7 @@ export default function AdminManagePage() {
         release_year: parseInt(formData.release_year),
         studio_id: studioIdValue,
         video_url: primaryEmbedUrl || "",
+        download_url: formData.download_url || null,
       };
 
       if (editingId) {
@@ -222,6 +224,7 @@ export default function AdminManagePage() {
       tags_raw: v.video_tags?.map((t: any) => t.tags?.name).filter(Boolean).join(", ") || "",
       filedon_url: v.video_servers?.find((s: any) => s.server_name === "Filedon")?.embed_url || "",
       turbovip_url: v.video_servers?.find((s: any) => s.server_name === "Turbovip")?.embed_url || "",
+      download_url: v.download_url || "",
     });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -355,6 +358,7 @@ export default function AdminManagePage() {
                 <label className="text-xs text-gray-500 font-bold block mb-2">LINK SERVER IFRAME</label>
                 <input placeholder="URL Embed Filedon" className="w-full bg-[#222] border border-[#333] p-2 rounded-lg mb-2 text-sm outline-none focus:border-orange-500" value={formData.filedon_url} onChange={e => setFormData({...formData, filedon_url: e.target.value})} />
                 <input placeholder="URL Embed Turbovip" className="w-full bg-[#222] border border-[#333] p-2 rounded-lg text-sm outline-none focus:border-orange-500" value={formData.turbovip_url} onChange={e => setFormData({...formData, turbovip_url: e.target.value})} />
+                <input placeholder="URL Direct Download (Opsional)" className="w-full bg-[#222] border border-blue-500/30 p-2 rounded-lg text-sm outline-none focus:border-blue-500" value={formData.download_url} onChange={e => setFormData({...formData, download_url: e.target.value})} />
               </div>
             </div>
 
