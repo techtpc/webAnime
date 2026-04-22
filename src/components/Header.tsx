@@ -102,6 +102,10 @@ export default function Header() {
           <Menu className="w-6 h-6" />
         </button>
         
+        <Link href="/" className="flex-shrink-0 flex items-center">
+          <img src="/prottube%20logo.png" alt="ProtTube" className="h-6 w-auto object-contain block" />
+        </Link>
+
         <div className="flex-1 min-w-0">
           <div className="flex rounded-full bg-[#222222] px-3 py-2 border border-[#333333] focus-within:border-[#555555]">
             <Suspense fallback={<div className="h-5 w-full animate-pulse bg-transparent" />}>
@@ -123,8 +127,13 @@ export default function Header() {
 
       {/* ================= DESKTOP HEADER ================= */}
       <div className="hidden md:flex h-20 items-center justify-between bg-[#0f0f0f]/90 px-6 gap-4">
+        {/* Logo Left */}
+        <Link href="/" className="flex items-center flex-shrink-0">
+          <img src="/prottube%20logo.png" alt="ProtTube" className="h-[60px] w-[160px] object-contain block" />
+        </Link>
+
         {/* Filter Tabs */}
-        <div className="flex items-center gap-6 ml-64 min-w-fit overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-6 min-w-fit overflow-x-auto scrollbar-hide">
           {filterTabs.map((tab, idx) => (
             <button key={idx} className={`pb-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${idx === 0 ? "border-orange-500 text-orange-500" : "border-transparent text-gray-400 hover:text-white"}`}>
               {tab}

@@ -44,6 +44,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
 
+
   useEffect(() => {
     const handleToggle = () => setIsOpen((prev) => !prev);
     window.addEventListener('toggleSidebar', handleToggle);
@@ -64,7 +65,7 @@ export default function Sidebar() {
               <span className="text-orange-500">Prot</span>
               <span className="text-white">Tube</span>
             </h1>
-            <p className="text-xs text-gray-400 mt-1">Premium Theater</p>
+            
           </Link>
 
           <nav className="mt-8 space-y-2">
