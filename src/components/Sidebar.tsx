@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { navItems } from "@/lib/data";
+import { useState, useEffect } from "react";
 
 const Icons = {
   home: (
@@ -31,7 +32,6 @@ const Icons = {
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" />
     </svg>
   ),
-
   tag: (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
       <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.659A2.25 2.25 0 0 0 9.568 3Z" />
@@ -42,22 +42,32 @@ const Icons = {
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [isOpen, setIsOpen] = useState(false);
+
+
+  useEffect(() => {
+    const handleToggle = () => setIsOpen((prev) => !prev);
+    window.addEventListener('toggleSidebar', handleToggle);
+    return () => window.removeEventListener('toggleSidebar', handleToggle);
+  }, []);
+
+  useEffect(() => {
+    setIsOpen(false);
+  }, [pathname]);
 
   return (
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden lg:flex fixed left-0 top-0 z-40 h-screen w-64 flex-col justify-between bg-[#1a1a1a] p-6 border-r border-[#333333] pt-20">
         <div>
-          {/* Logo */}
           <Link href="/" className="mb-2 block">
             <h1 className="text-2xl font-black italic tracking-tight">
               <span className="text-orange-500">Prot</span>
               <span className="text-white">Tube</span>
             </h1>
-            <p className="text-xs text-gray-400 mt-1">Premium Theater</p>
+            
           </Link>
 
-          {/* Navigation */}
           <nav className="mt-8 space-y-2">
             {navItems.map((item, idx) => {
               const isActive = pathname === item.href;
@@ -79,22 +89,21 @@ export default function Sidebar() {
             })}
           </nav>
         </div>
-
-        {/* Promo Card */}
-        <div className="mt-auto rounded-xl border border-orange-500/50 bg-[#222222] p-5 shadow-lg relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-16 h-16 bg-orange-500/10 rounded-bl-full"></div>
-          <h3 className="mb-2 text-sm font-bold text-orange-400">Limited Offer</h3>
-          <p className="mb-4 text-xs text-gray-300">Experience 4K HDR without limits.</p>
-          <button className="w-full rounded-lg bg-orange-500 py-2.5 text-sm font-bold text-black hover:bg-orange-600 transition-colors shadow-lg shadow-orange-500/20">
-            Go Pro
-          </button>
-        </div>
       </aside>
 
-      {/* Mobile Sidebar - Overlay Style */}
-      <div className="lg:hidden fixed inset-0 z-30 hidden bg-black/50 md:hidden" id="mobile-nav-overlay"></div>
-      <aside className="lg:hidden fixed left-0 top-16 z-30 hidden w-64 max-h-[calc(100vh-64px)] flex-col overflow-y-auto bg-[#1a1a1a] p-4 border-r border-[#333333] md:hidden" id="mobile-nav">
-        {/* Navigation for Mobile */}
+      {/* Mobile Sidebar */}
+      {isOpen && (
+        <div 
+          className="lg:hidden fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" 
+          onClick={() => setIsOpen(false)}
+        ></div>
+      )}
+
+      <aside 
+        className={`lg:hidden fixed left-0 top-16 z-50 w-64 h-[calc(100vh-64px)] flex flex-col overflow-y-auto bg-[#1a1a1a] p-4 border-r border-[#333333] transition-transform duration-300 ease-in-out ${
+          isOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
         <nav className="space-y-2">
           {navItems.map((item, idx) => {
             const isActive = pathname === item.href;

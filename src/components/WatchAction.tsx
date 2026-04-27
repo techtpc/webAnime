@@ -67,6 +67,13 @@ export default function WatchActions({ videoId, initialLikes, downloadUrl }: Wat
     }
   };
 
+  const handleDownload = () => {
+    if (!downloadUrl) {
+      return;
+    }
+    window.open(downloadUrl, "_blank");
+  };
+
   // Fungsi buat ngubah angka "1500" jadi "1.5K" 
   const formatNumber = (num: number) => {
     if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
@@ -102,17 +109,18 @@ export default function WatchActions({ videoId, initialLikes, downloadUrl }: Wat
       </button>
 
       {/* Tombol Download */}
-      {downloadUrl && (
-        <a 
-          href={downloadUrl} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="flex items-center space-x-2 rounded-full bg-orange-500 px-4 sm:px-5 py-2 text-sm font-bold text-black hover:bg-orange-600 transition shadow-lg shadow-orange-500/20"
-        >
-          <Download className="h-4 w-4" />
-          <span className="hidden sm:inline">Download</span>
-        </a>
-      )}
+      <button 
+        onClick={handleDownload}
+        disabled={!downloadUrl}
+        className={`flex items-center space-x-2 rounded-full px-4 sm:px-5 py-2 text-sm font-bold transition shadow-lg ${
+          !downloadUrl
+            ? "bg-gray-600 text-gray-300 cursor-not-allowed shadow-gray-600/20 opacity-50"
+            : "bg-orange-500 text-black hover:bg-orange-600 shadow-orange-500/20"
+        }`}
+      >
+        <Download className="h-4 w-4" />
+        <span className="hidden sm:inline">Download</span>
+      </button>
     </div>
   );
 }

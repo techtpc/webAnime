@@ -5,16 +5,15 @@ import { filterTabs } from "@/lib/data";
 import { Menu, LogOut, ShieldAlert } from "lucide-react";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
-import { useRouter, useSearchParams } from "next/navigation"; // Ditambah useSearchParams
+import { useRouter, useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 
-// --- KOMPONEN SEARCH BAR (LOGIKA ANDA) ---
+// --- KOMPONEN SEARCH BAR ---
 function SearchInput({ placeholder }: { placeholder: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") || "");
 
-  // Sinkronisasi input jika URL berubah
   useEffect(() => {
     setQuery(searchParams.get("q") || "");
   }, [searchParams]);
@@ -52,7 +51,6 @@ export default function Header() {
   const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
-  // FUNGSI CEK LAYAR & LOGIN
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
     handleResize();
@@ -83,43 +81,69 @@ export default function Header() {
     const toastId = toast.loading("Sedang keluar dari sistem...");
     await supabase.auth.signOut();
     toast.success("Lu berhasil logout!", { id: toastId });
+    // TENDANG KE HOMEPAGE YANG LU LUPA KEMAREN
+    router.push("/");
     router.refresh();
   };
+
   const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || "User";
   const userInitial = userName.charAt(0).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#0f0f0f]/90 backdrop-blur-md border-b border-[#333333]/50">
+    <header className="sticky top-0 z-50 w-full bg-[#0f0f0f]/95 backdrop-blur-md border-b border-[#333333]/60">
       
       {/* ================= MOBILE HEADER ================= */}
-      <div className="md:hidden flex h-16 items-center justify-between px-4 gap-3">
-        <button className="text-gray-400 hover:text-white transition flex-shrink-0">
-          <Menu className="w-6 h-6" />
+      <div className="md:hidden flex h-14 items-center px-3 gap-2">
+        {/* Hamburger Menu */}
+        <button 
+          onClick={() => window.dispatchEvent(new Event('toggleSidebar'))}
+          className="text-gray-400 hover:text-white transition flex-shrink-0 p-1.5 rounded-lg hover:bg-[#222]"
+        >
+          <Menu className="w-5 h-5" />
         </button>
         
+        {/* Logo - teks inline agar tidak terlalu besar di mobile */}
+        <Link href="/" className="flex-shrink-0 flex items-center">
+          <span className="text-xl font-black italic tracking-tight leading-none">
+            <span className="text-orange-500">Prot</span>
+            <span className="text-white">Tube</span>
+          </span>
+        </Link>
+
+        {/* Search Bar - takes remaining space */}
         <div className="flex-1 min-w-0">
-          <div className="flex rounded-full bg-[#222222] px-3 py-2 border border-[#333333] focus-within:border-[#555555]">
+          <div className="flex items-center rounded-full bg-[#1e1e1e] px-3 py-1.5 border border-[#2e2e2e] focus-within:border-orange-500/40 transition-colors">
             <Suspense fallback={<div className="h-5 w-full animate-pulse bg-transparent" />}>
-              <SearchInput placeholder="Search..." />
+              <SearchInput placeholder="Cari video..." />
             </Suspense>
           </div>
         </div>
 
+        {/* Auth Button */}
         {user ? (
-          <button onClick={handleLogout} className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-500 text-xs font-bold text-black border border-black flex-shrink-0">
+          <button 
+            onClick={handleLogout} 
+            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-orange-500 text-xs font-black text-black ring-2 ring-orange-500/30"
+          >
             {userInitial}
           </button>
         ) : (
-          <Link href="/login">
-            <button className="text-xs font-bold bg-orange-500 text-black px-3 py-1.5 rounded-full flex-shrink-0">Login</button>
+          <Link href="/login" className="flex-shrink-0">
+            <button className="text-xs font-bold bg-orange-500 text-black px-3 py-1.5 rounded-full whitespace-nowrap">Masuk</button>
           </Link>
         )}
       </div>
 
+
       {/* ================= DESKTOP HEADER ================= */}
       <div className="hidden md:flex h-20 items-center justify-between bg-[#0f0f0f]/90 px-6 gap-4">
+        {/* Logo Left */}
+        <Link href="/" className="flex items-center flex-shrink-0">
+          <img src="/prottube%20logo.png" alt="ProtTube" className="h-[60px] w-[160px] object-contain block" />
+        </Link>
+
         {/* Filter Tabs */}
-        <div className="flex items-center gap-6 ml-64 min-w-fit overflow-x-auto scrollbar-hide">
+        <div className="flex items-center gap-6 min-w-fit overflow-x-auto scrollbar-hide">
           {filterTabs.map((tab, idx) => (
             <button key={idx} className={`pb-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${idx === 0 ? "border-orange-500 text-orange-500" : "border-transparent text-gray-400 hover:text-white"}`}>
               {tab}
@@ -127,7 +151,7 @@ export default function Header() {
           ))}
         </div>
         
-        {/* Search Bar Desktop (LOGIKA ANDA) */}
+        {/* Search Bar Desktop */}
         <div className="flex-1 max-w-xl">
           <div className="flex w-full items-center rounded-full bg-[#222222] px-4 py-2 border border-[#333333] focus-within:border-[#555555]">
             <Suspense fallback={<div className="h-5 w-full animate-pulse bg-transparent" />}>
@@ -136,7 +160,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Right Actions (LOGIKA REKAN TIM) */}
+        {/* Right Actions */}
         <div className="flex items-center space-x-4 flex-shrink-0">
           <button className="text-gray-400 hover:text-white relative transition mr-2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
