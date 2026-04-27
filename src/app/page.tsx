@@ -75,10 +75,10 @@ function HomeContent() {
   return (
     <>
       <Header />
-      <div className="flex-1 px-4 sm:px-6 lg:px-8 py-6">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-            {searchTerm ? `Hasil pencarian: "${searchTerm}"` : "Terbaru"}
+      <div className="flex-1 px-3 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-xl sm:text-3xl font-bold tracking-tight text-white">
+            {searchTerm ? `Hasil: "${searchTerm}"` : "Terbaru"}
           </h2>
         </div>
 
@@ -92,7 +92,7 @@ function HomeContent() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
               {videos && videos.length > 0 ? (
                 videos.map((video: any) => (
                   <VideoCard key={video.id} video={video} />

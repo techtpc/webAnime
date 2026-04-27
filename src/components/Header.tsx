@@ -90,40 +90,50 @@ export default function Header() {
   const userInitial = userName.charAt(0).toUpperCase();
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-[#0f0f0f]/90 backdrop-blur-md border-b border-[#333333]/50">
+    <header className="sticky top-0 z-50 w-full bg-[#0f0f0f]/95 backdrop-blur-md border-b border-[#333333]/60">
       
       {/* ================= MOBILE HEADER ================= */}
-      <div className="md:hidden flex h-16 items-center justify-between px-4 gap-3">
-        {/* INI DIA MANTRA TELEPATINYA */}
+      <div className="md:hidden flex h-14 items-center px-3 gap-2">
+        {/* Hamburger Menu */}
         <button 
           onClick={() => window.dispatchEvent(new Event('toggleSidebar'))}
-          className="text-gray-400 hover:text-white transition flex-shrink-0"
+          className="text-gray-400 hover:text-white transition flex-shrink-0 p-1.5 rounded-lg hover:bg-[#222]"
         >
-          <Menu className="w-6 h-6" />
+          <Menu className="w-5 h-5" />
         </button>
         
+        {/* Logo - teks inline agar tidak terlalu besar di mobile */}
         <Link href="/" className="flex-shrink-0 flex items-center">
-          <img src="/prottube%20logo.png" alt="ProtTube" className="h-6 w-auto object-contain block" />
+          <span className="text-xl font-black italic tracking-tight leading-none">
+            <span className="text-orange-500">Prot</span>
+            <span className="text-white">Tube</span>
+          </span>
         </Link>
 
+        {/* Search Bar - takes remaining space */}
         <div className="flex-1 min-w-0">
-          <div className="flex rounded-full bg-[#222222] px-3 py-2 border border-[#333333] focus-within:border-[#555555]">
+          <div className="flex items-center rounded-full bg-[#1e1e1e] px-3 py-1.5 border border-[#2e2e2e] focus-within:border-orange-500/40 transition-colors">
             <Suspense fallback={<div className="h-5 w-full animate-pulse bg-transparent" />}>
-              <SearchInput placeholder="Search..." />
+              <SearchInput placeholder="Cari video..." />
             </Suspense>
           </div>
         </div>
 
+        {/* Auth Button */}
         {user ? (
-          <button onClick={handleLogout} className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-500 text-xs font-bold text-black border border-black flex-shrink-0">
+          <button 
+            onClick={handleLogout} 
+            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-orange-500 text-xs font-black text-black ring-2 ring-orange-500/30"
+          >
             {userInitial}
           </button>
         ) : (
-          <Link href="/login">
-            <button className="text-xs font-bold bg-orange-500 text-black px-3 py-1.5 rounded-full flex-shrink-0">Login</button>
+          <Link href="/login" className="flex-shrink-0">
+            <button className="text-xs font-bold bg-orange-500 text-black px-3 py-1.5 rounded-full whitespace-nowrap">Masuk</button>
           </Link>
         )}
       </div>
+
 
       {/* ================= DESKTOP HEADER ================= */}
       <div className="hidden md:flex h-20 items-center justify-between bg-[#0f0f0f]/90 px-6 gap-4">
