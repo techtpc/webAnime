@@ -23,6 +23,7 @@ export default function RootLayout({
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta httpEquiv="x-ua-compatible" content="ie=edge" />
+        <meta name="google-adsense-account" content="ca-pub-9348337344283565"></meta>
       </head>
       
       <body className={`${inter.className} bg-[#0f0f0f] text-white antialiased`}>
