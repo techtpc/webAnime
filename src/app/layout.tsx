@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import { Toaster } from "react-hot-toast";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,6 +24,7 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta httpEquiv="x-ua-compatible" content="ie=edge" />
       </head>
+      
       <body className={`${inter.className} bg-[#0f0f0f] text-white antialiased`}>
         {/* 1. Tambahkan Toaster di sini */}
         <Toaster
@@ -42,6 +44,18 @@ export default function RootLayout({
             {children}
           </main>
         </div>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-DS8BG9K04S"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-DS8BG9K04S');
+          `}
+        </Script>
       </body>
     </html>
   );
